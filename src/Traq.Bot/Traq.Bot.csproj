@@ -1,9 +1,46 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <Title>Traq.Bot</Title>
+    <Authors>Yusuke Toyoda</Authors>
+    <Description>A .NET library for traQ BOT works with WebSocker or HttpServer.</Description>
+    <Copyright>(C) 2024 Yusuke Toyoda</Copyright>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <Version>0.1.0</Version>
+    <AssemblyVersion>0.1.0</AssemblyVersion>
+    <FileVersion>0.1.0.0</FileVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Traq.Bot</PackageId>
+    <NeutralLanguage>ja</NeutralLanguage>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <!--Set release notes below-->
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <PackageTags>traq</PackageTags>
+    <PackageProjectUrl>https://github.com/YuHima03/dotnet-traq-bot</PackageProjectUrl>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <RepositoryUrl>https://github.com/YuHima03/dotnet-traq-bot</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+  
 </Project>
