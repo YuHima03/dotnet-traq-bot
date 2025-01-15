@@ -50,5 +50,9 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Traq" Version="0.1.0" />
+  </ItemGroup>
   
 </Project>
