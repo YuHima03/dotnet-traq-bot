@@ -10,7 +10,7 @@
     <Title>Traq.Bot</Title>
     <Authors>Yusuke Toyoda</Authors>
     <Description>A .NET library for traQ BOT works with WebSocker or HttpServer.</Description>
-    <Copyright>(C) 2024 Yusuke Toyoda</Copyright>
+    <Copyright>(c) 2025 Yusuke Toyoda</Copyright>
   </PropertyGroup>
   
   <PropertyGroup>
