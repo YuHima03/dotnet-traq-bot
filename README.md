@@ -1,2 +1,2 @@
-# dotnet-traq-ws-bot
-.NET library for traQ BOT works with WebSocket.
+# dotnet-traq-bot
+.NET library for traQ BOT.
