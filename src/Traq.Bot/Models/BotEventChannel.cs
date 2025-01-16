@@ -21,7 +21,7 @@ namespace Traq.Bot.Models
 
         [JsonPropertyName("creator")]
         [NotNull]
-        public BotEventUser? Author { get; set; }
+        public BotEventUser? CreatedBy { get; set; }
 
         [JsonPropertyName("createdAt")]
         public DateTimeOffset CreatedAt { get; set; }
