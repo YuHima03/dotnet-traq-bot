@@ -104,14 +104,10 @@ namespace Traq.Bot.WebSocket
             var logger = _logger;
             var ws = _ws;
 
-            UriBuilder ub = new(_traq.Configuration.BasePath);
-            ub.Scheme = ub.Scheme switch
-            {
-                "http" => Uri.UriSchemeWs,
-                "https" => Uri.UriSchemeWss,
-                _ => throw new NotSupportedException($"Unknown uri scheme: {ub.Scheme}")
-            };
-            ub.Path += (ub.Path.Length == 0 || ub.Path[^1] != '/') ? "/bots/ws" : "bots/ws";
+            UriBuilder ub = new(_traq.Options.BaseAddress);
+            ub.Path = Path.Combine(ub.Path, "bots/ws");
+            ub.Scheme = (ub.Scheme == Uri.UriSchemeHttps) ? Uri.UriSchemeWss : Uri.UriSchemeWs;
+
             var uri = ub.Uri;
 
             try
