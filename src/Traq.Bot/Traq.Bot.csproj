@@ -25,7 +25,7 @@
     <NeutralLanguage>ja</NeutralLanguage>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <!--Set release notes below-->
-    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageReleaseNotes>Add base class for WebSocket bots.</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageTags>traq</PackageTags>
