@@ -8,6 +8,11 @@ using Traq.Bot.Helpers;
 
 namespace Traq.Bot.WebSocket
 {
+    /// <summary>
+    /// A base class for implementing a traQ BOT service that receives messages with WebSocket.
+    /// </summary>
+    /// <param name="traq"></param>
+    /// <param name="provider"></param>
     public abstract class TraqWsBot(ITraqApiClient traq, IServiceProvider provider) : TraqBot(provider)
     {
         const int WsBufferSize = 1 << 16;

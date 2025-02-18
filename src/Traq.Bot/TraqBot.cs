@@ -7,6 +7,10 @@ using Traq.Bot.Models;
 
 namespace Traq.Bot
 {
+    /// <summary>
+    /// A base class for implementing a background service that handles events dispatched by a traQ server.
+    /// </summary>
+    /// <param name="provider"></param>
     public abstract class TraqBot(IServiceProvider provider) : BackgroundService
     {
         readonly ILogger<TraqBot> _logger = provider.GetRequiredService<ILogger<TraqBot>>();
