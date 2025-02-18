@@ -34,6 +34,8 @@ namespace Traq.Bot.WebSocket
 
             base.Dispose();
             _ws?.Dispose();
+
+            GC.SuppressFinalize(this);
         }
 
         protected sealed override async ValueTask<(string? RequestId, string EventName, JsonElement Body)> WaitForNextEventAsync(CancellationToken ct)
@@ -87,7 +89,7 @@ namespace Traq.Bot.WebSocket
             }
 
             Utf8JsonReader reader = new(buffer.AsSpan()[..result.Count]);
-            using var doc = JsonDocument.ParseValue(ref reader);
+            var doc = JsonDocument.ParseValue(ref reader);
 
             var jsonRoot = doc.RootElement;
             var eventName = jsonRoot.GetProperty("type").GetString().MustNotNull();
@@ -141,13 +143,13 @@ namespace Traq.Bot.WebSocket
         {
             ClientWebSocket ws = new();
 
-            if (!string.IsNullOrEmpty(traqApiClient.Configuration.AccessToken))
+            if (!string.IsNullOrEmpty(traqApiClient.Options.BearerAuthToken))
             {
-                ws.Options.SetRequestHeader("Authorization", $"Bearer {traqApiClient.Configuration.AccessToken}");
+                ws.Options.SetRequestHeader("Authorization", $"Bearer {traqApiClient.Options.BearerAuthToken}");
             }
             else if (traqApiClient.ClientHandler is not null)
             {
-                UriBuilder baseAddressBuilder = new(traqApiClient.Configuration.BasePath)
+                UriBuilder baseAddressBuilder = new(traqApiClient.Options.BaseAddress)
                 {
                     Fragment = "",
                     Path = "",
