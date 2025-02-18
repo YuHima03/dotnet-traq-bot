@@ -16,9 +16,11 @@ namespace Traq.Bot.Models
         public Guid ChannelId { get; set; }
 
         [JsonPropertyName("text")]
+        [NotNull]
         public string? Text { get; set; }
 
         [JsonPropertyName("plainText")]
+        [NotNull]
         public string? PlainText { get; set; }
 
         [JsonPropertyName("embedded")]
