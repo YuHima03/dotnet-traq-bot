@@ -65,7 +65,7 @@ namespace Traq.Bot.WebSocket
             if (result.MessageType == WebSocketMessageType.Close)
             {
                 logger?.LogWarning("Received a close message: {}", result.CloseStatusDescription);
-                await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, null, ct);
+                await ws.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, null, ct);
                 await StartWebSocketAsync(ct);
                 return false;
             }
