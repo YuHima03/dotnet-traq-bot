@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Buffers;
 using System.Net;
 using System.Net.WebSockets;
@@ -11,16 +11,18 @@ namespace Traq.Bot.WebSocket
     /// <summary>
     /// A base class for implementing a traQ BOT service that receives messages with WebSocket.
     /// </summary>
-    /// <param name="traq"></param>
-    /// <param name="provider"></param>
-    public abstract class TraqWsBot(ITraqApiClient traq, IServiceProvider provider) : TraqBot(provider)
+    /// <param name="traqOptions"></param>
+    /// <param name="logger"></param>
+    /// <param name="baseLogger"></param>
+    public abstract class TraqWsBot(
+        IOptions<TraqApiClientOptions> traqOptions,
+        ILogger<TraqWsBot>? logger,
+        ILogger<TraqBot> baseLogger
+        ) : TraqBot(baseLogger)
     {
         const int WsBufferSize = 1 << 16;
 
-        readonly ILogger<TraqWsBot> _logger = provider.GetRequiredService<ILogger<TraqWsBot>>();
-        readonly ITraqApiClient _traq = traq;
-
-        readonly ClientWebSocket _ws = CreateClientWebSocket(traq);
+        ClientWebSocket? _ws = null;
         readonly byte[] _wsBuffer = ArrayPool<byte>.Shared.Rent(WsBufferSize);
 
         (string? RequestId, string EventName, JsonElement body) _current;
@@ -58,29 +60,27 @@ namespace Traq.Bot.WebSocket
         async Task<bool> HandleMessageAsync(CancellationToken ct)
         {
             byte[] buffer = _wsBuffer;
-            var logger = _logger;
-            var ws = _ws;
+            var ws = (_ws ??= await CreateAndStartClientWebSocketAsync(traqOptions.Value, ct));
 
             var result = await ws.ReceiveAsync(buffer, ct);
             if (result.MessageType == WebSocketMessageType.Close)
             {
                 logger?.LogWarning("Received a close message: {}", result.CloseStatusDescription);
-                await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, null, ct);
-                await StartWebSocketAsync(ct);
+                using (ws)
+                {
+                    await ws.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, null, ct);
+                }
+                _ws = null;
                 return false;
             }
             else if (result.MessageType == WebSocketMessageType.Binary)
             {
                 logger?.LogError("Received a binary message.");
-                await ws.CloseAsync(WebSocketCloseStatus.InvalidMessageType, "Binary message is not supported.", ct);
-                await StartWebSocketAsync(ct);
                 return false;
             }
             else if (!result.EndOfMessage)
             {
                 logger?.LogError("Received too long message: {} bytes.", result.Count);
-                await ws.CloseAsync(WebSocketCloseStatus.MessageTooBig, null, ct);
-                await StartWebSocketAsync(ct);
                 return false;
             }
             else if (result.Count == 0)
@@ -103,66 +103,70 @@ namespace Traq.Bot.WebSocket
         protected override async ValueTask InitializeAsync(CancellationToken ct)
         {
             await base.InitializeAsync(ct);
-            await StartWebSocketAsync(ct);
-        }
-
-        async ValueTask StartWebSocketAsync(CancellationToken ct)
-        {
-            var logger = _logger;
-            var ws = _ws;
-
-            UriBuilder ub = new(_traq.Options.BaseAddress);
-            ub.Path = Path.Combine(ub.Path, "bots/ws");
-            ub.Scheme = (ub.Scheme == Uri.UriSchemeHttps) ? Uri.UriSchemeWss : Uri.UriSchemeWs;
-
-            var uri = ub.Uri;
-
-            try
-            {
-                await ws.ConnectAsync(uri, ct);
-            }
-            catch (Exception e)
-            {
-                logger?.LogError(e, "Failed to connect to a WebSocket server.");
-                throw;
-            }
-            logger?.LogInformation("Successfully connected to a WebSocket server. -> {}", uri);
+            _ws = await CreateAndStartClientWebSocketAsync(traqOptions.Value, ct);
         }
 
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
             await base.StopAsync(cancellationToken);
+            await (_ws?.CloseAsync(WebSocketCloseStatus.NormalClosure, null, cancellationToken) ?? Task.CompletedTask);
+        }
 
-            if (_ws.State == WebSocketState.Open)
+        /// <summary>
+        /// Ensures that a WebSocket client is created and started.
+        /// </summary>
+        async ValueTask<ClientWebSocket> CreateAndStartClientWebSocketAsync(TraqApiClientOptions options, CancellationToken ct)
+        {
+            if (options.BaseAddressUri is null)
             {
-                await _ws.CloseAsync(WebSocketCloseStatus.NormalClosure, null, cancellationToken);
+                throw new ArgumentException($"{nameof(TraqApiClientOptions.BaseAddressUri)} must be set before creating a WebSocket client.");
+            }
+
+            var uri = new UriBuilder(options.BaseAddressUri)
+            {
+                Path = Path.Combine(options.BaseAddressUri.AbsolutePath, "bots/ws"),
+                Scheme = (options.BaseAddressUri.Scheme == Uri.UriSchemeHttps) ? Uri.UriSchemeWss : Uri.UriSchemeWs
+            }.Uri;
+
+            var ws = CreateClientWebSocket(options);
+            while (true)
+            {
+                ct.ThrowIfCancellationRequested();
+                try
+                {
+                    await ws.ConnectAsync(uri, ct);
+                    logger?.LogInformation("Connected to a WebSocket server: {Uri}", uri);
+                    return ws;
+                }
+                catch (WebSocketException e)
+                {
+                    logger?.LogError(e, "Failed to connect to a WebSocket server. Retry after a minute.");
+                    await Task.Delay(TimeSpan.FromMinutes(1), ct);
+                }
             }
         }
 
-        static ClientWebSocket CreateClientWebSocket(ITraqApiClient traqApiClient)
+        static ClientWebSocket CreateClientWebSocket(TraqApiClientOptions options)
         {
             ClientWebSocket ws = new();
 
-            if (!string.IsNullOrEmpty(traqApiClient.Options.BearerAuthToken))
+            if (!string.IsNullOrEmpty(options.BearerAuthToken))
             {
-                ws.Options.SetRequestHeader("Authorization", $"Bearer {traqApiClient.Options.BearerAuthToken}");
+                ws.Options.SetRequestHeader("Authorization", $"Bearer {options.BearerAuthToken}");
             }
-            else if (traqApiClient.ClientHandler is not null)
+            else if (!string.IsNullOrEmpty(options.CookieAuthToken) && options.BaseAddressUri is not null)
             {
-                UriBuilder baseAddressBuilder = new(traqApiClient.Options.BaseAddress)
+                CookieContainer cc = ws.Options.Cookies ?? new();
+                cc.Add(new Cookie
                 {
-                    Fragment = "",
-                    Path = "",
-                    Query = ""
-                };
-
-                var cookie = traqApiClient.ClientHandler.CookieContainer.GetCookies(baseAddressBuilder.Uri).Where(c => c.Name == "r_session");
-                if (cookie.Count() == 1)
-                {
-                    CookieContainer cc = ws.Options.Cookies ?? new();
-                    cc.Add(cookie.First());
-                    ws.Options.Cookies = cc;
-                }
+                    Name = "r_session",
+                    Value = options.CookieAuthToken,
+                    Domain = options.BaseAddressUri.Host,
+                    Path = "/",
+                    HttpOnly = true,
+                    Secure = options.BaseAddressUri.Scheme == Uri.UriSchemeHttps
+                });
+                ws.Options.Cookies = cc;
             }
 
             return ws;
