@@ -38,73 +38,73 @@ namespace Traq.Bot
             switch (eventName)
             {
                 #region System Events
-                case "JOIN":
+                case TraqBotEvents.Join:
                     return OnJoinedAsync(body.Deserialize<JoinOrLeftEventArgs>().MustNotNull(), ct);
-                case "LEFT":
+                case TraqBotEvents.Left:
                     return OnLeftAsync(body.Deserialize<JoinOrLeftEventArgs>().MustNotNull(), ct);
-                case "PING":
+                case TraqBotEvents.Ping:
                     return OnPingAsync(body.Deserialize<PingEventArgs>().MustNotNull(), ct);
                 #endregion
 
                 #region Message Events
-                case "MESSAGE_CREATED":
+                case TraqBotEvents.MessageCreated:
                     return OnMessageCreatedAsync(body.Deserialize<MessageCreatedOrUpdatedEventArgs>().MustNotNull(), ct);
-                case "MESSAGE_DELETED":
+                case TraqBotEvents.MessageDeleted:
                     return OnMessageDeletedAsync(body.Deserialize<MessageDeletedEventArgs>().MustNotNull(), ct);
-                case "MESSAGE_UPDATED":
+                case TraqBotEvents.MessageUpdated:
                     return OnMessageUpdatedAsync(body.Deserialize<MessageCreatedOrUpdatedEventArgs>().MustNotNull(), ct);
-                case "DIRECT_MESSAGE_CREATED":
+                case TraqBotEvents.DirectMessageCreated:
                     return OnDirectMessageCreatedAsync(body.Deserialize<MessageCreatedOrUpdatedEventArgs>().MustNotNull(), ct);
-                case "DIRECT_MESSAGE_DELETED":
+                case TraqBotEvents.DirectMessageDeleted:
                     return OnDirectMessageDeletedAsync(body.Deserialize<DirectMessageDeletedEventArgs>().MustNotNull(), ct);
-                case "DIRECT_MESSAGE_UPDATED":
+                case TraqBotEvents.DirectMessageUpdated:
                     return OnDirectMessageUpdatedAsync(body.Deserialize<MessageCreatedOrUpdatedEventArgs>().MustNotNull(), ct);
-                case "BOT_MESSAGE_STAMPS_UPDATED":
+                case TraqBotEvents.BotMessageStampsUpdated:
                     return OnBotMessageStampsUpdatedAsync(body.Deserialize<BotMessageStampsUpdatedEventArgs>().MustNotNull(), ct);
                 #endregion
 
                 #region Channel Events
-                case "CHANNEL_CREATED":
+                case TraqBotEvents.ChannelCreated:
                     return OnChannelCreatedAsync(body.Deserialize<ChannelCreatedEventArgs>().MustNotNull(), ct);
-                case "CHANNEL_TOPIC_CHANGED":
+                case TraqBotEvents.ChannelTopicChanged:
                     return OnChannelTopicChangedAsync(body.Deserialize<ChannelTopicChangedEventArgs>().MustNotNull(), ct);
                 #endregion
 
                 #region User Events
-                case "USER_CREATED":
+                case TraqBotEvents.UserCreated:
                     return OnUserCreatedAsync(body.Deserialize<UserCreatedOrActivatedEventArgs>().MustNotNull(), ct);
-                case "USER_ACTIVATED":
+                case TraqBotEvents.UserActivated:
                     return OnUserActivatedAsync(body.Deserialize<UserCreatedOrActivatedEventArgs>().MustNotNull(), ct);
                 #endregion
 
                 #region UserGroup Events
-                case "USER_GROUP_CREATED":
+                case TraqBotEvents.UserGroupCreated:
                     return OnUserGroupCreatedAsync(body.Deserialize<UserGroupCreatedEventArgs>().MustNotNull(), ct);
-                case "USER_GROUP_UPDATED":
+                case TraqBotEvents.UserGroupUpdated:
                     return OnUserGroupUpdatedAsync(body.Deserialize<UserGroupUpdatedOrDeletedEventArgs>().MustNotNull(), ct);
-                case "USER_GROUP_DELETED":
+                case TraqBotEvents.UserGroupDeleted:
                     return OnUserGroupDeletedAsync(body.Deserialize<UserGroupUpdatedOrDeletedEventArgs>().MustNotNull(), ct);
-                case "USER_GROUP_MEMBER_ADDED":
+                case TraqBotEvents.UserGroupMemberAdded:
                     return OnUserGroupMemberAddedAsync(body.Deserialize<UserGroupMemberEventArgs>().MustNotNull(), ct);
-                case "USER_GROUP_MEMBER_UPDATED":
+                case TraqBotEvents.UserGroupMemberUpdated:
                     return OnUserGroupMemberUpdatedAsync(body.Deserialize<UserGroupMemberEventArgs>().MustNotNull(), ct);
-                case "USER_GROUP_MEMBER_REMOVED":
+                case TraqBotEvents.UserGroupMemberRemoved:
                     return OnUserGroupMemberRemovedAsync(body.Deserialize<UserGroupMemberEventArgs>().MustNotNull(), ct);
-                case "USER_GROUP_ADMIN_ADDED":
+                case TraqBotEvents.UserGroupAdminAdded:
                     return OnUserGroupMemberAddedAsync(body.Deserialize<UserGroupMemberEventArgs>().MustNotNull(), ct);
-                case "USER_GROUP_ADMIN_REMOVED":
+                case TraqBotEvents.UserGroupAdminRemoved:
                     return OnUserGroupMemberAddedAsync(body.Deserialize<UserGroupMemberEventArgs>().MustNotNull(), ct);
                 #endregion
 
                 #region Stamp Events
-                case "STAMP_CREATED":
+                case TraqBotEvents.StampCreated:
                     return OnStampCreatedAsync(body.Deserialize<StampCreatedEventArgs>().MustNotNull(), ct);
                 #endregion
 
                 #region Tag Events
-                case "TAG_ADDED":
+                case TraqBotEvents.TagAdded:
                     return OnTagAddedAsync(body.Deserialize<TagEventArgs>().MustNotNull(), ct);
-                case "TAG_REMOVED":
+                case TraqBotEvents.TagRemoved:
                     return OnTagRemovedAsync(body.Deserialize<TagEventArgs>().MustNotNull(), ct);
                 #endregion
 
