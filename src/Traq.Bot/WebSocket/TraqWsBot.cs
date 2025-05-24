@@ -94,7 +94,7 @@ namespace Traq.Bot.WebSocket
             var jsonRoot = doc.RootElement;
             var eventName = jsonRoot.GetProperty("type").GetString().MustNotNull();
             var body = jsonRoot.GetProperty("body");
-            var requestId = (eventName == "ERROR") ? null : jsonRoot.GetProperty("reqId").GetString();
+            var requestId = (eventName == TraqBotEvents.Error) ? null : jsonRoot.GetProperty("reqId").GetString();
 
             _current = (requestId, eventName, body);
             return true;
