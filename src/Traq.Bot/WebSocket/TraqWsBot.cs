@@ -72,15 +72,11 @@ namespace Traq.Bot.WebSocket
             else if (result.MessageType == WebSocketMessageType.Binary)
             {
                 logger?.LogError("Received a binary message.");
-                await ws.CloseAsync(WebSocketCloseStatus.InvalidMessageType, "Binary message is not supported.", ct);
-                await StartWebSocketAsync(ct);
                 return false;
             }
             else if (!result.EndOfMessage)
             {
                 logger?.LogError("Received too long message: {} bytes.", result.Count);
-                await ws.CloseAsync(WebSocketCloseStatus.MessageTooBig, null, ct);
-                await StartWebSocketAsync(ct);
                 return false;
             }
             else if (result.Count == 0)
