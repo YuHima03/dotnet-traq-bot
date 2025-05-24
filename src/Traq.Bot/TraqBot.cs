@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using Traq.Bot.Helpers;
@@ -10,11 +9,11 @@ namespace Traq.Bot
     /// <summary>
     /// A base class for implementing a background service that handles events dispatched by a traQ server.
     /// </summary>
-    /// <param name="provider"></param>
-    public abstract class TraqBot(IServiceProvider provider) : BackgroundService
+    /// <param name="logger"></param>
+    public abstract class TraqBot(
+        ILogger<TraqBot>? logger
+        ) : BackgroundService
     {
-        readonly ILogger<TraqBot> _logger = provider.GetRequiredService<ILogger<TraqBot>>();
-
         protected sealed override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             try
@@ -29,7 +28,7 @@ namespace Traq.Bot
             }
             catch (OperationCanceledException ex) when (stoppingToken.IsCancellationRequested)
             {
-                _logger.LogWarning(ex, "The operation is cancelled because cancellation is requested.");
+                logger?.LogWarning(ex, "The operation is cancelled because cancellation is requested.");
             }
         }
 
@@ -109,7 +108,7 @@ namespace Traq.Bot
                 #endregion
 
                 default:
-                    _logger.LogWarning("Unknown event name: {}", eventName);
+                    logger?.LogWarning("Unknown event name: {}", eventName);
                     return ValueTask.CompletedTask;
             }
         }
