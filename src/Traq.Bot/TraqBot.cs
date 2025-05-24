@@ -91,9 +91,9 @@ namespace Traq.Bot
                 case TraqBotEvents.UserGroupMemberRemoved:
                     return OnUserGroupMemberRemovedAsync(body.Deserialize<UserGroupMemberEventArgs>().MustNotNull(), ct);
                 case TraqBotEvents.UserGroupAdminAdded:
-                    return OnUserGroupMemberAddedAsync(body.Deserialize<UserGroupMemberEventArgs>().MustNotNull(), ct);
+                    return OnUserGroupAdminAddedAsync(body.Deserialize<UserGroupMemberEventArgs>().MustNotNull(), ct);
                 case TraqBotEvents.UserGroupAdminRemoved:
-                    return OnUserGroupMemberAddedAsync(body.Deserialize<UserGroupMemberEventArgs>().MustNotNull(), ct);
+                    return OnUserGroupAdminRemovedAsync(body.Deserialize<UserGroupMemberEventArgs>().MustNotNull(), ct);
                 #endregion
 
                 #region Stamp Events
