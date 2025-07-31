@@ -19,9 +19,9 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <Version>0.2.0</Version>
-    <AssemblyVersion>0.2.0</AssemblyVersion>
-    <FileVersion>0.2.0.0</FileVersion>
+    <Version>0.3.0</Version>
+    <AssemblyVersion>0.3.0</AssemblyVersion>
+    <FileVersion>0.3.0.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -29,7 +29,7 @@
     <NeutralLanguage>ja</NeutralLanguage>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <!--Set release notes below-->
-    <PackageReleaseNotes>Fix some bugs and refactor base classes for a bot.</PackageReleaseNotes>
+    <PackageReleaseNotes>Add support for Native AOT.</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageTags>traq</PackageTags>
