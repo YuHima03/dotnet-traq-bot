@@ -6,7 +6,7 @@ namespace Traq.Bot
     /// <summary>
     /// Provides metadata for JSON serialization of bot event models.
     /// </summary>
-    [JsonSourceGenerationOptions(PropertyNameCaseInsensitive = false)]
+    [JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true)]
     [JsonSerializable(typeof(BotEventArgs))]
     [JsonSerializable(typeof(BotEventChannel))]
     [JsonSerializable(typeof(BotEventDeletedDirectMessage))]
