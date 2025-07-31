@@ -38,73 +38,73 @@ namespace Traq.Bot
             {
                 #region System Events
                 case TraqBotEvents.Join:
-                    return OnJoinedAsync(body.Deserialize<JoinOrLeftEventArgs>().MustNotNull(), ct);
+                    return OnJoinedAsync(body.Deserialize(SerializationContext.Default.JoinOrLeftEventArgs).MustNotNull(), ct);
                 case TraqBotEvents.Left:
-                    return OnLeftAsync(body.Deserialize<JoinOrLeftEventArgs>().MustNotNull(), ct);
+                    return OnLeftAsync(body.Deserialize(SerializationContext.Default.JoinOrLeftEventArgs).MustNotNull(), ct);
                 case TraqBotEvents.Ping:
-                    return OnPingAsync(body.Deserialize<PingEventArgs>().MustNotNull(), ct);
+                    return OnPingAsync(body.Deserialize(SerializationContext.Default.PingEventArgs).MustNotNull(), ct);
                 #endregion
 
                 #region Message Events
                 case TraqBotEvents.MessageCreated:
-                    return OnMessageCreatedAsync(body.Deserialize<MessageCreatedOrUpdatedEventArgs>().MustNotNull(), ct);
+                    return OnMessageCreatedAsync(body.Deserialize(SerializationContext.Default.MessageCreatedOrUpdatedEventArgs).MustNotNull(), ct);
                 case TraqBotEvents.MessageDeleted:
-                    return OnMessageDeletedAsync(body.Deserialize<MessageDeletedEventArgs>().MustNotNull(), ct);
+                    return OnMessageDeletedAsync(body.Deserialize(SerializationContext.Default.MessageDeletedEventArgs).MustNotNull(), ct);
                 case TraqBotEvents.MessageUpdated:
-                    return OnMessageUpdatedAsync(body.Deserialize<MessageCreatedOrUpdatedEventArgs>().MustNotNull(), ct);
+                    return OnMessageUpdatedAsync(body.Deserialize(SerializationContext.Default.MessageCreatedOrUpdatedEventArgs).MustNotNull(), ct);
                 case TraqBotEvents.DirectMessageCreated:
-                    return OnDirectMessageCreatedAsync(body.Deserialize<MessageCreatedOrUpdatedEventArgs>().MustNotNull(), ct);
+                    return OnDirectMessageCreatedAsync(body.Deserialize(SerializationContext.Default.MessageCreatedOrUpdatedEventArgs).MustNotNull(), ct);
                 case TraqBotEvents.DirectMessageDeleted:
-                    return OnDirectMessageDeletedAsync(body.Deserialize<DirectMessageDeletedEventArgs>().MustNotNull(), ct);
+                    return OnDirectMessageDeletedAsync(body.Deserialize(SerializationContext.Default.DirectMessageDeletedEventArgs).MustNotNull(), ct);
                 case TraqBotEvents.DirectMessageUpdated:
-                    return OnDirectMessageUpdatedAsync(body.Deserialize<MessageCreatedOrUpdatedEventArgs>().MustNotNull(), ct);
+                    return OnDirectMessageUpdatedAsync(body.Deserialize(SerializationContext.Default.MessageCreatedOrUpdatedEventArgs).MustNotNull(), ct);
                 case TraqBotEvents.BotMessageStampsUpdated:
-                    return OnBotMessageStampsUpdatedAsync(body.Deserialize<BotMessageStampsUpdatedEventArgs>().MustNotNull(), ct);
+                    return OnBotMessageStampsUpdatedAsync(body.Deserialize(SerializationContext.Default.BotMessageStampsUpdatedEventArgs).MustNotNull(), ct);
                 #endregion
 
                 #region Channel Events
                 case TraqBotEvents.ChannelCreated:
-                    return OnChannelCreatedAsync(body.Deserialize<ChannelCreatedEventArgs>().MustNotNull(), ct);
+                    return OnChannelCreatedAsync(body.Deserialize(SerializationContext.Default.ChannelCreatedEventArgs).MustNotNull(), ct);
                 case TraqBotEvents.ChannelTopicChanged:
-                    return OnChannelTopicChangedAsync(body.Deserialize<ChannelTopicChangedEventArgs>().MustNotNull(), ct);
+                    return OnChannelTopicChangedAsync(body.Deserialize(SerializationContext.Default.ChannelTopicChangedEventArgs).MustNotNull(), ct);
                 #endregion
 
                 #region User Events
                 case TraqBotEvents.UserCreated:
-                    return OnUserCreatedAsync(body.Deserialize<UserCreatedOrActivatedEventArgs>().MustNotNull(), ct);
+                    return OnUserCreatedAsync(body.Deserialize(SerializationContext.Default.UserCreatedOrActivatedEventArgs).MustNotNull(), ct);
                 case TraqBotEvents.UserActivated:
-                    return OnUserActivatedAsync(body.Deserialize<UserCreatedOrActivatedEventArgs>().MustNotNull(), ct);
+                    return OnUserActivatedAsync(body.Deserialize(SerializationContext.Default.UserCreatedOrActivatedEventArgs).MustNotNull(), ct);
                 #endregion
 
                 #region UserGroup Events
                 case TraqBotEvents.UserGroupCreated:
-                    return OnUserGroupCreatedAsync(body.Deserialize<UserGroupCreatedEventArgs>().MustNotNull(), ct);
+                    return OnUserGroupCreatedAsync(body.Deserialize(SerializationContext.Default.UserGroupCreatedEventArgs).MustNotNull(), ct);
                 case TraqBotEvents.UserGroupUpdated:
-                    return OnUserGroupUpdatedAsync(body.Deserialize<UserGroupUpdatedOrDeletedEventArgs>().MustNotNull(), ct);
+                    return OnUserGroupUpdatedAsync(body.Deserialize(SerializationContext.Default.UserGroupUpdatedOrDeletedEventArgs).MustNotNull(), ct);
                 case TraqBotEvents.UserGroupDeleted:
-                    return OnUserGroupDeletedAsync(body.Deserialize<UserGroupUpdatedOrDeletedEventArgs>().MustNotNull(), ct);
+                    return OnUserGroupDeletedAsync(body.Deserialize(SerializationContext.Default.UserGroupUpdatedOrDeletedEventArgs).MustNotNull(), ct);
                 case TraqBotEvents.UserGroupMemberAdded:
-                    return OnUserGroupMemberAddedAsync(body.Deserialize<UserGroupMemberEventArgs>().MustNotNull(), ct);
+                    return OnUserGroupMemberAddedAsync(body.Deserialize(SerializationContext.Default.UserGroupMemberEventArgs).MustNotNull(), ct);
                 case TraqBotEvents.UserGroupMemberUpdated:
-                    return OnUserGroupMemberUpdatedAsync(body.Deserialize<UserGroupMemberEventArgs>().MustNotNull(), ct);
+                    return OnUserGroupMemberUpdatedAsync(body.Deserialize(SerializationContext.Default.UserGroupMemberEventArgs).MustNotNull(), ct);
                 case TraqBotEvents.UserGroupMemberRemoved:
-                    return OnUserGroupMemberRemovedAsync(body.Deserialize<UserGroupMemberEventArgs>().MustNotNull(), ct);
+                    return OnUserGroupMemberRemovedAsync(body.Deserialize(SerializationContext.Default.UserGroupMemberEventArgs).MustNotNull(), ct);
                 case TraqBotEvents.UserGroupAdminAdded:
-                    return OnUserGroupAdminAddedAsync(body.Deserialize<UserGroupMemberEventArgs>().MustNotNull(), ct);
+                    return OnUserGroupAdminAddedAsync(body.Deserialize(SerializationContext.Default.UserGroupMemberEventArgs).MustNotNull(), ct);
                 case TraqBotEvents.UserGroupAdminRemoved:
-                    return OnUserGroupAdminRemovedAsync(body.Deserialize<UserGroupMemberEventArgs>().MustNotNull(), ct);
+                    return OnUserGroupAdminRemovedAsync(body.Deserialize(SerializationContext.Default.UserGroupMemberEventArgs).MustNotNull(), ct);
                 #endregion
 
                 #region Stamp Events
                 case TraqBotEvents.StampCreated:
-                    return OnStampCreatedAsync(body.Deserialize<StampCreatedEventArgs>().MustNotNull(), ct);
+                    return OnStampCreatedAsync(body.Deserialize(SerializationContext.Default.StampCreatedEventArgs).MustNotNull(), ct);
                 #endregion
 
                 #region Tag Events
                 case TraqBotEvents.TagAdded:
-                    return OnTagAddedAsync(body.Deserialize<TagEventArgs>().MustNotNull(), ct);
+                    return OnTagAddedAsync(body.Deserialize(SerializationContext.Default.TagEventArgs).MustNotNull(), ct);
                 case TraqBotEvents.TagRemoved:
-                    return OnTagRemovedAsync(body.Deserialize<TagEventArgs>().MustNotNull(), ct);
+                    return OnTagRemovedAsync(body.Deserialize(SerializationContext.Default.TagEventArgs).MustNotNull(), ct);
                 #endregion
 
                 default:
