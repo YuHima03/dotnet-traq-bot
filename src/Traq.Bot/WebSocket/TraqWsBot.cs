@@ -120,7 +120,12 @@ namespace Traq.Bot.WebSocket
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
             await base.StopAsync(cancellationToken);
-            await (_ws?.CloseAsync(WebSocketCloseStatus.NormalClosure, null, cancellationToken) ?? Task.CompletedTask);
+
+            var ws = Interlocked.Exchange(ref _ws, null);
+            if (ws is not null && ws.State is WebSocketState.Open)
+            {
+                await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, null, cancellationToken);
+            }
         }
 
         /// <summary>
