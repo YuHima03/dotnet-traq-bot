@@ -30,6 +30,7 @@ namespace Traq.Bot.WebSocket
 
         WebSocketEventData _current;
 
+        /// <inheritdoc />
         public override void Dispose()
         {
             if (_wsBuffer is not null)
@@ -43,6 +44,12 @@ namespace Traq.Bot.WebSocket
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Returns a <see cref="ValueTask{TResult}"/> that completes when the next event is received.
+        /// </summary>
+        /// <param name="ct"></param>
+        /// <returns>A <see cref="ValueTask{TResult}"/> that provides received event data.</returns>
+        /// <exception cref="OperationCanceledException"></exception>
         protected sealed override async ValueTask<WebSocketEventData> WaitForNextEventAsync(CancellationToken ct)
         {
             var ts500ms = TimeSpan.FromMilliseconds(500);
@@ -103,12 +110,14 @@ namespace Traq.Bot.WebSocket
             return true;
         }
 
+        /// <inheritdoc />
         protected override async ValueTask InitializeAsync(CancellationToken ct)
         {
             await base.InitializeAsync(ct);
             _ws = await CreateAndStartClientWebSocketAsync(traqOptions.Value, ct);
         }
 
+        /// <inheritdoc />
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
             await base.StopAsync(cancellationToken);
