@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Buffers;
 using System.Net;
 using System.Net.WebSockets;
 using System.Text.Json;
@@ -25,18 +24,13 @@ namespace Traq.Bot.WebSocket
         const int WsBufferSize = 1 << 16;
 
         ClientWebSocket? _ws = null;
-        readonly byte[] _wsBuffer = ArrayPool<byte>.Shared.Rent(WsBufferSize);
+        readonly Lazy<byte[]> _buffer = new(() => new byte[WsBufferSize], true);
 
         WebSocketEventData _current;
 
         /// <inheritdoc />
         public override void Dispose()
         {
-            if (_wsBuffer is not null)
-            {
-                ArrayPool<byte>.Shared.Return(_wsBuffer);
-            }
-
             base.Dispose();
             _ws?.Dispose();
 
@@ -68,7 +62,7 @@ namespace Traq.Bot.WebSocket
 
         async Task<bool> ReceiveAndHandleMessageAsync(CancellationToken ct)
         {
-            byte[] buffer = _wsBuffer;
+            byte[] buffer = _buffer.Value;
             var ws = (_ws ??= await CreateAndStartClientWebSocketAsync(traqOptions.Value, ct));
 
             WebSocketReceiveResult receiveResult;
