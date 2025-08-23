@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using CommunityToolkit.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Traq.Bot.Helpers
 {
@@ -14,7 +15,7 @@ namespace Traq.Bot.Helpers
         {
             if (!nullable.HasValue)
             {
-                throw new ArgumentNullException(nameof(nullable));
+                ThrowHelper.ThrowArgumentNullException(nameof(nullable));
             }
             return nullable.Value;
         }

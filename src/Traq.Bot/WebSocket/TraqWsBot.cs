@@ -1,10 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using CommunityToolkit.Diagnostics;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Buffers;
 using System.Net;
 using System.Net.WebSockets;
 using System.Text.Json;
 using Traq.Bot.Helpers;
+using WebSocketEventData = (string? RequestId, string EventName, System.Text.Json.JsonElement Body);
 
 namespace Traq.Bot.WebSocket
 {
@@ -23,30 +24,32 @@ namespace Traq.Bot.WebSocket
         const int WsBufferSize = 1 << 16;
 
         ClientWebSocket? _ws = null;
-        readonly byte[] _wsBuffer = ArrayPool<byte>.Shared.Rent(WsBufferSize);
+        readonly Lazy<byte[]> _buffer = new(() => new byte[WsBufferSize], true);
 
-        (string? RequestId, string EventName, JsonElement body) _current;
+        WebSocketEventData _current;
 
+        /// <inheritdoc />
         public override void Dispose()
         {
-            if (_wsBuffer is not null)
-            {
-                ArrayPool<byte>.Shared.Return(_wsBuffer);
-            }
-
             base.Dispose();
             _ws?.Dispose();
 
             GC.SuppressFinalize(this);
         }
 
-        protected sealed override async ValueTask<(string? RequestId, string EventName, JsonElement Body)> WaitForNextEventAsync(CancellationToken ct)
+        /// <summary>
+        /// Returns a <see cref="ValueTask{TResult}"/> that completes when the next event is received.
+        /// </summary>
+        /// <param name="ct"></param>
+        /// <returns>A <see cref="ValueTask{TResult}"/> that provides received event data.</returns>
+        /// <exception cref="OperationCanceledException"></exception>
+        protected sealed override async ValueTask<WebSocketEventData> WaitForNextEventAsync(CancellationToken ct)
         {
             var ts500ms = TimeSpan.FromMilliseconds(500);
 
             while (!ct.IsCancellationRequested)
             {
-                var received = HandleMessageAsync(ct);
+                var received = ReceiveAndHandleMessageAsync(ct);
                 await Task.WhenAll(received, Task.Delay(ts500ms, ct));
 
                 if (received.Result)
@@ -54,62 +57,68 @@ namespace Traq.Bot.WebSocket
                     return _current;
                 }
             }
-            throw new OperationCanceledException(ct);
+            return ThrowHelper.ThrowOperationCanceledException<WebSocketEventData>(ct);
         }
 
-        async Task<bool> HandleMessageAsync(CancellationToken ct)
+        async Task<bool> ReceiveAndHandleMessageAsync(CancellationToken ct)
         {
-            byte[] buffer = _wsBuffer;
+            byte[] buffer = _buffer.Value;
             var ws = (_ws ??= await CreateAndStartClientWebSocketAsync(traqOptions.Value, ct));
 
-            var result = await ws.ReceiveAsync(buffer, ct);
-            if (result.MessageType == WebSocketMessageType.Close)
+            WebSocketReceiveResult receiveResult;
+            try
             {
-                logger?.LogWarning("Received a close message: {}", result.CloseStatusDescription);
-                using (ws)
-                {
-                    await ws.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, null, ct);
-                }
-                _ws = null;
+                receiveResult = await ws.ReceiveAsync(buffer, ct);
+            }
+            catch (Exception e)
+            {
+                logger?.LogError(e, "Failed to receive a WebSocket message.");
+                Interlocked.Exchange(ref _ws, null)?.Dispose();
                 return false;
             }
-            else if (result.MessageType == WebSocketMessageType.Binary)
+
+            if (receiveResult.MessageType is WebSocketMessageType.Close)
             {
-                logger?.LogError("Received a binary message.");
+                logger?.LogWarning("WebSocket connection was closed: {}", receiveResult.CloseStatusDescription);
+                Interlocked.Exchange(ref _ws, null)?.CloseOutputAsync(receiveResult.CloseStatus ?? WebSocketCloseStatus.Empty, receiveResult.CloseStatusDescription, ct);
                 return false;
             }
-            else if (!result.EndOfMessage)
+            else if (receiveResult.MessageType is WebSocketMessageType.Binary)
             {
-                logger?.LogError("Received too long message: {} bytes.", result.Count);
+                logger?.LogWarning("Binary message is not supported. The received message is ignored.");
                 return false;
             }
-            else if (result.Count == 0)
+            else if (!receiveResult.EndOfMessage)
+            {
+                logger?.LogWarning("Received too long message: {} bytes. The received message is ignored.", receiveResult.Count);
+                return false;
+            }
+            else if (receiveResult.Count == 0)
             {
                 return false;
             }
 
-            Utf8JsonReader reader = new(buffer.AsSpan()[..result.Count]);
-            var doc = JsonDocument.ParseValue(ref reader);
-
-            var jsonRoot = doc.RootElement;
-            var eventName = jsonRoot.GetProperty("type").GetString().MustNotNull();
-            var body = jsonRoot.GetProperty("body");
-            var requestId = (eventName == TraqBotEvents.Error) ? null : jsonRoot.GetProperty("reqId").GetString();
-
-            _current = (requestId, eventName, body);
+            _current = GetWebSocketEventData(buffer.AsSpan(0, receiveResult.Count));
             return true;
         }
 
+        /// <inheritdoc />
         protected override async ValueTask InitializeAsync(CancellationToken ct)
         {
             await base.InitializeAsync(ct);
             _ws = await CreateAndStartClientWebSocketAsync(traqOptions.Value, ct);
         }
 
+        /// <inheritdoc />
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
             await base.StopAsync(cancellationToken);
-            await (_ws?.CloseAsync(WebSocketCloseStatus.NormalClosure, null, cancellationToken) ?? Task.CompletedTask);
+
+            var ws = Interlocked.Exchange(ref _ws, null);
+            if (ws is not null && ws.State is WebSocketState.Open)
+            {
+                await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, null, cancellationToken);
+            }
         }
 
         /// <summary>
@@ -117,10 +126,7 @@ namespace Traq.Bot.WebSocket
         /// </summary>
         async ValueTask<ClientWebSocket> CreateAndStartClientWebSocketAsync(TraqApiClientOptions options, CancellationToken ct)
         {
-            if (options.BaseAddressUri is null)
-            {
-                throw new ArgumentException($"{nameof(TraqApiClientOptions.BaseAddressUri)} must be set before creating a WebSocket client.");
-            }
+            Guard.IsNotNull(options.BaseAddressUri);
 
             var uri = new UriBuilder(options.BaseAddressUri)
             {
@@ -138,7 +144,7 @@ namespace Traq.Bot.WebSocket
                     logger?.LogInformation("Connected to a WebSocket server: {Uri}", uri);
                     return ws;
                 }
-                catch (WebSocketException e)
+                catch (Exception e)
                 {
                     logger?.LogError(e, "Failed to connect to a WebSocket server. Retry after a minute.");
                     await Task.Delay(TimeSpan.FromMinutes(1), ct);
@@ -170,6 +176,17 @@ namespace Traq.Bot.WebSocket
             }
 
             return ws;
+        }
+
+        static WebSocketEventData GetWebSocketEventData(ReadOnlySpan<byte> jsonData)
+        {
+            Utf8JsonReader reader = new(jsonData);
+            var doc = JsonDocument.ParseValue(ref reader);
+            var jsonRoot = doc.RootElement;
+            var eventName = jsonRoot.GetProperty("type").GetString().MustNotNull();
+            var body = jsonRoot.GetProperty("body");
+            var requestId = (eventName == TraqBotEvents.Error) ? null : jsonRoot.GetProperty("reqId").GetString();
+            return (requestId, eventName, body);
         }
     }
 }

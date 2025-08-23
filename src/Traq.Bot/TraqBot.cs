@@ -14,6 +14,7 @@ namespace Traq.Bot
         ILogger<TraqBot>? logger
         ) : BackgroundService
     {
+        /// <inheritdoc />
         protected sealed override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             try
@@ -113,58 +114,137 @@ namespace Traq.Bot
             }
         }
 
+        /// <summary>
+        /// Triggered once when the bot is ready for starting.
+        /// </summary>
         protected virtual ValueTask InitializeAsync(CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>JOIN</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnJoinedAsync(JoinOrLeftEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>LEFT</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnLeftAsync(JoinOrLeftEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>PING</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnPingAsync(PingEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>MESSAGE_CREATED</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnMessageCreatedAsync(MessageCreatedOrUpdatedEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>MESSAGE_DELETED</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnMessageDeletedAsync(MessageDeletedEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>MESSAGE_UPDATED</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnMessageUpdatedAsync(MessageCreatedOrUpdatedEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>DIRECT_MESSAGE_CREATED</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnDirectMessageCreatedAsync(MessageCreatedOrUpdatedEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>DIRECT_MESSAGE_DELETED</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnDirectMessageDeletedAsync(DirectMessageDeletedEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>DIRECT_MESSAGE_UPDATED</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnDirectMessageUpdatedAsync(MessageCreatedOrUpdatedEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>MESSAGE_STAMPS_UPDATED</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnBotMessageStampsUpdatedAsync(BotMessageStampsUpdatedEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>CHANNEL_CREATED</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnChannelCreatedAsync(ChannelCreatedEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>CHANNEL_TOPIC_CHANGED</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnChannelTopicChangedAsync(ChannelTopicChangedEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>USER_CREATED</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnUserCreatedAsync(UserCreatedOrActivatedEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>USER_ACTIVATED</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnUserActivatedAsync(UserCreatedOrActivatedEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>USER_GROUP_CREATED</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnUserGroupCreatedAsync(UserGroupCreatedEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>USER_GROUP_UPDATED</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnUserGroupUpdatedAsync(UserGroupUpdatedOrDeletedEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>USER_GROUP_DELETED</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnUserGroupDeletedAsync(UserGroupUpdatedOrDeletedEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>USER_GROUP_MEMBER_ADDED</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnUserGroupMemberAddedAsync(UserGroupMemberEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>USER_GROUP_MEMBER_UPDATED</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnUserGroupMemberUpdatedAsync(UserGroupMemberEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>USER_GROUP_MEMBER_REMOVED</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnUserGroupMemberRemovedAsync(UserGroupMemberEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>USER_GROUP_ADMIN_ADDED</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnUserGroupAdminAddedAsync(UserGroupMemberEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>USER_GROUP_ADMIN_REMOVED</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnUserGroupAdminRemovedAsync(UserGroupMemberEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>STAMP_CREATED</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnStampCreatedAsync(StampCreatedEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>TAG_ADDED</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnTagAddedAsync(TagEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <summary>
+        /// Triggered when a <c>TAG_REMOVED</c> event is received.
+        /// </summary>
         protected virtual ValueTask OnTagRemovedAsync(TagEventArgs args, CancellationToken ct) => ValueTask.CompletedTask;
 
+        /// <inheritdoc />
         public sealed override Task StartAsync(CancellationToken cancellationToken) => base.StartAsync(cancellationToken);
 
         protected abstract ValueTask<(string? RequestId, string EventName, JsonElement Body)> WaitForNextEventAsync(CancellationToken ct);
