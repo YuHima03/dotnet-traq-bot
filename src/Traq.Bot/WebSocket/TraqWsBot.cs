@@ -98,15 +98,7 @@ namespace Traq.Bot.WebSocket
                 return false;
             }
 
-            Utf8JsonReader reader = new(buffer.AsSpan()[..result.Count]);
-            var doc = JsonDocument.ParseValue(ref reader);
-
-            var jsonRoot = doc.RootElement;
-            var eventName = jsonRoot.GetProperty("type").GetString().MustNotNull();
-            var body = jsonRoot.GetProperty("body");
-            var requestId = (eventName == TraqBotEvents.Error) ? null : jsonRoot.GetProperty("reqId").GetString();
-
-            _current = (requestId, eventName, body);
+            _current = GetWebSocketEventData(buffer.AsSpan(0, receiveResult.Count));
             return true;
         }
 
@@ -179,6 +171,17 @@ namespace Traq.Bot.WebSocket
             }
 
             return ws;
+        }
+
+        static WebSocketEventData GetWebSocketEventData(ReadOnlySpan<byte> jsonData)
+        {
+            Utf8JsonReader reader = new(jsonData);
+            var doc = JsonDocument.ParseValue(ref reader);
+            var jsonRoot = doc.RootElement;
+            var eventName = jsonRoot.GetProperty("type").GetString().MustNotNull();
+            var body = jsonRoot.GetProperty("body");
+            var requestId = (eventName == TraqBotEvents.Error) ? null : jsonRoot.GetProperty("reqId").GetString();
+            return (requestId, eventName, body);
         }
     }
 }
