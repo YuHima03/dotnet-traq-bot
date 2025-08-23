@@ -23,8 +23,8 @@ namespace Traq.Bot
 
                 while (!stoppingToken.IsCancellationRequested)
                 {
-                    var (reqId, evName, body) = await WaitForNextEventAsync(stoppingToken);
-                    await HandleEventAsync(reqId, evName, body, stoppingToken);
+                    var data = await WaitForNextEventAsync(stoppingToken);
+                    await HandleEventAsync(data, stoppingToken);
                 }
             }
             catch (OperationCanceledException ex) when (stoppingToken.IsCancellationRequested)
@@ -33,8 +33,9 @@ namespace Traq.Bot
             }
         }
 
-        ValueTask HandleEventAsync(string? requestId, string eventName, JsonElement body, CancellationToken ct)
+        ValueTask HandleEventAsync(EventData data, CancellationToken ct)
         {
+            var (body, eventName, _) = data;
             switch (eventName)
             {
                 #region System Events
@@ -247,6 +248,11 @@ namespace Traq.Bot
         /// <inheritdoc />
         public sealed override Task StartAsync(CancellationToken cancellationToken) => base.StartAsync(cancellationToken);
 
-        protected abstract ValueTask<(string? RequestId, string EventName, JsonElement Body)> WaitForNextEventAsync(CancellationToken ct);
+        /// <summary>
+        /// Returns a <see cref="ValueTask{TResult}"/> that completes when the next event is received.
+        /// </summary>
+        /// <param name="ct"></param>
+        /// <returns>A <see cref="ValueTask{TResult}"/> that provides received event data.</returns>
+        protected abstract ValueTask<EventData> WaitForNextEventAsync(CancellationToken ct);
     }
 }

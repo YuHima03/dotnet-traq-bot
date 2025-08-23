@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.WebSockets;
 using System.Text.Json;
 using Traq.Bot.Helpers;
-using WebSocketEventData = (string? RequestId, string EventName, System.Text.Json.JsonElement Body);
+using Traq.Bot.Models;
 
 namespace Traq.Bot.WebSocket
 {
@@ -26,7 +26,7 @@ namespace Traq.Bot.WebSocket
         ClientWebSocket? _ws = null;
         readonly Lazy<byte[]> _buffer = new(() => new byte[WsBufferSize], true);
 
-        WebSocketEventData _current;
+        EventData _current;
 
         /// <inheritdoc />
         public override void Dispose()
@@ -37,13 +37,9 @@ namespace Traq.Bot.WebSocket
             GC.SuppressFinalize(this);
         }
 
-        /// <summary>
-        /// Returns a <see cref="ValueTask{TResult}"/> that completes when the next event is received.
-        /// </summary>
-        /// <param name="ct"></param>
-        /// <returns>A <see cref="ValueTask{TResult}"/> that provides received event data.</returns>
+        /// <inheritdoc />
         /// <exception cref="OperationCanceledException"></exception>
-        protected sealed override async ValueTask<WebSocketEventData> WaitForNextEventAsync(CancellationToken ct)
+        protected sealed override async ValueTask<EventData> WaitForNextEventAsync(CancellationToken ct)
         {
             var ts500ms = TimeSpan.FromMilliseconds(500);
 
@@ -57,7 +53,7 @@ namespace Traq.Bot.WebSocket
                     return _current;
                 }
             }
-            return ThrowHelper.ThrowOperationCanceledException<WebSocketEventData>(ct);
+            return ThrowHelper.ThrowOperationCanceledException<EventData>(ct);
         }
 
         async Task<bool> ReceiveAndHandleMessageAsync(CancellationToken ct)
@@ -98,7 +94,7 @@ namespace Traq.Bot.WebSocket
                 return false;
             }
 
-            _current = GetWebSocketEventData(buffer.AsSpan(0, receiveResult.Count));
+            _current = JsonSerializer.Deserialize(buffer.AsSpan(0, receiveResult.Count), SerializationContext.Default.EventData);
             return true;
         }
 
@@ -176,17 +172,6 @@ namespace Traq.Bot.WebSocket
             }
 
             return ws;
-        }
-
-        static WebSocketEventData GetWebSocketEventData(ReadOnlySpan<byte> jsonData)
-        {
-            Utf8JsonReader reader = new(jsonData);
-            var doc = JsonDocument.ParseValue(ref reader);
-            var jsonRoot = doc.RootElement;
-            var eventName = jsonRoot.GetProperty("type").GetString().MustNotNull();
-            var body = jsonRoot.GetProperty("body");
-            var requestId = (eventName == TraqBotEvents.Error) ? null : jsonRoot.GetProperty("reqId").GetString();
-            return (requestId, eventName, body);
         }
     }
 }

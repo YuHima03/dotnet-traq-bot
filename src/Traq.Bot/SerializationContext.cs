@@ -21,6 +21,7 @@ namespace Traq.Bot
     [JsonSerializable(typeof(ChannelCreatedEventArgs))]
     [JsonSerializable(typeof(ChannelTopicChangedEventArgs))]
     [JsonSerializable(typeof(DirectMessageDeletedEventArgs))]
+    [JsonSerializable(typeof(EventData))]
     [JsonSerializable(typeof(JoinOrLeftEventArgs))]
     [JsonSerializable(typeof(MessageCreatedOrUpdatedEventArgs))]
     [JsonSerializable(typeof(MessageDeletedEventArgs))]
