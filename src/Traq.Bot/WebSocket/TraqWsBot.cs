@@ -6,7 +6,6 @@ using System.Net;
 using System.Net.WebSockets;
 using System.Text.Json;
 using Traq.Bot.Helpers;
-
 using WebSocketEventData = (string? RequestId, string EventName, System.Text.Json.JsonElement Body);
 
 namespace Traq.Bot.WebSocket
@@ -78,11 +77,11 @@ namespace Traq.Bot.WebSocket
                 receiveResult = await ws.ReceiveAsync(buffer, ct);
             }
             catch (Exception e)
-                {
+            {
                 logger?.LogError(e, "Failed to receive a WebSocket message.");
                 Interlocked.Exchange(ref _ws, null)?.Dispose();
                 return false;
-                }
+            }
 
             if (receiveResult.MessageType is WebSocketMessageType.Close)
             {
@@ -151,7 +150,7 @@ namespace Traq.Bot.WebSocket
                     logger?.LogInformation("Connected to a WebSocket server: {Uri}", uri);
                     return ws;
                 }
-                catch (WebSocketException e)
+                catch (Exception e)
                 {
                     logger?.LogError(e, "Failed to connect to a WebSocket server. Retry after a minute.");
                     await Task.Delay(TimeSpan.FromMinutes(1), ct);
