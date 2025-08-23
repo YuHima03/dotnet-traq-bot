@@ -56,6 +56,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.4.0" />
     <PackageReference Include="Traq" Version="1.0.0-alpha.1" />
   </ItemGroup>
   
