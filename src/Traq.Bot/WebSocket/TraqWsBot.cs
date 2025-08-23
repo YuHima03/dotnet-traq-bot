@@ -1,10 +1,13 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using CommunityToolkit.Diagnostics;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Buffers;
 using System.Net;
 using System.Net.WebSockets;
 using System.Text.Json;
 using Traq.Bot.Helpers;
+
+using WebSocketEventData = (string? RequestId, string EventName, System.Text.Json.JsonElement Body);
 
 namespace Traq.Bot.WebSocket
 {
@@ -25,7 +28,7 @@ namespace Traq.Bot.WebSocket
         ClientWebSocket? _ws = null;
         readonly byte[] _wsBuffer = ArrayPool<byte>.Shared.Rent(WsBufferSize);
 
-        (string? RequestId, string EventName, JsonElement body) _current;
+        WebSocketEventData _current;
 
         public override void Dispose()
         {
@@ -40,7 +43,7 @@ namespace Traq.Bot.WebSocket
             GC.SuppressFinalize(this);
         }
 
-        protected sealed override async ValueTask<(string? RequestId, string EventName, JsonElement Body)> WaitForNextEventAsync(CancellationToken ct)
+        protected sealed override async ValueTask<WebSocketEventData> WaitForNextEventAsync(CancellationToken ct)
         {
             var ts500ms = TimeSpan.FromMilliseconds(500);
 
@@ -54,7 +57,7 @@ namespace Traq.Bot.WebSocket
                     return _current;
                 }
             }
-            throw new OperationCanceledException(ct);
+            return ThrowHelper.ThrowOperationCanceledException<WebSocketEventData>(ct);
         }
 
         async Task<bool> HandleMessageAsync(CancellationToken ct)
@@ -117,10 +120,7 @@ namespace Traq.Bot.WebSocket
         /// </summary>
         async ValueTask<ClientWebSocket> CreateAndStartClientWebSocketAsync(TraqApiClientOptions options, CancellationToken ct)
         {
-            if (options.BaseAddressUri is null)
-            {
-                throw new ArgumentException($"{nameof(TraqApiClientOptions.BaseAddressUri)} must be set before creating a WebSocket client.");
-            }
+            Guard.IsNotNull(options.BaseAddressUri);
 
             var uri = new UriBuilder(options.BaseAddressUri)
             {
