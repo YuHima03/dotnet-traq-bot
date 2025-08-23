@@ -72,28 +72,35 @@ namespace Traq.Bot.WebSocket
             byte[] buffer = _wsBuffer;
             var ws = (_ws ??= await CreateAndStartClientWebSocketAsync(traqOptions.Value, ct));
 
-            var result = await ws.ReceiveAsync(buffer, ct);
-            if (result.MessageType == WebSocketMessageType.Close)
+            WebSocketReceiveResult receiveResult;
+            try
             {
-                logger?.LogWarning("Received a close message: {}", result.CloseStatusDescription);
-                using (ws)
+                receiveResult = await ws.ReceiveAsync(buffer, ct);
+            }
+            catch (Exception e)
                 {
-                    await ws.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, null, ct);
+                logger?.LogError(e, "Failed to receive a WebSocket message.");
+                Interlocked.Exchange(ref _ws, null)?.Dispose();
+                return false;
                 }
-                _ws = null;
-                return false;
-            }
-            else if (result.MessageType == WebSocketMessageType.Binary)
+
+            if (receiveResult.MessageType is WebSocketMessageType.Close)
             {
-                logger?.LogError("Received a binary message.");
+                logger?.LogWarning("WebSocket connection was closed: {}", receiveResult.CloseStatusDescription);
+                Interlocked.Exchange(ref _ws, null)?.CloseOutputAsync(receiveResult.CloseStatus ?? WebSocketCloseStatus.Empty, receiveResult.CloseStatusDescription, ct);
                 return false;
             }
-            else if (!result.EndOfMessage)
+            else if (receiveResult.MessageType is WebSocketMessageType.Binary)
             {
-                logger?.LogError("Received too long message: {} bytes.", result.Count);
+                logger?.LogWarning("Binary message is not supported. The received message is ignored.");
                 return false;
             }
-            else if (result.Count == 0)
+            else if (!receiveResult.EndOfMessage)
+            {
+                logger?.LogWarning("Received too long message: {} bytes. The received message is ignored.", receiveResult.Count);
+                return false;
+            }
+            else if (receiveResult.Count == 0)
             {
                 return false;
             }
