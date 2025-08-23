@@ -5,6 +5,8 @@
     /// </summary>
     public static class TraqBotEvents
     {
+#pragma warning disable CS1591
+
         public const string Error = "ERROR";
 
         #region System Events
@@ -70,5 +72,7 @@
 
         public const string TagRemoved = "TAG_REMOVED";
         #endregion
+
+#pragma warning restore CS1591
     }
 }
