@@ -56,7 +56,7 @@ namespace Traq.Bot.WebSocket
 
             while (!ct.IsCancellationRequested)
             {
-                var received = HandleMessageAsync(ct);
+                var received = ReceiveAndHandleMessageAsync(ct);
                 await Task.WhenAll(received, Task.Delay(ts500ms, ct));
 
                 if (received.Result)
@@ -67,7 +67,7 @@ namespace Traq.Bot.WebSocket
             return ThrowHelper.ThrowOperationCanceledException<WebSocketEventData>(ct);
         }
 
-        async Task<bool> HandleMessageAsync(CancellationToken ct)
+        async Task<bool> ReceiveAndHandleMessageAsync(CancellationToken ct)
         {
             byte[] buffer = _wsBuffer;
             var ws = (_ws ??= await CreateAndStartClientWebSocketAsync(traqOptions.Value, ct));
