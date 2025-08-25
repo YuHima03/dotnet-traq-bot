@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.WebSockets;
 using System.Text.Json;
-using Traq.Bot.Helpers;
 using Traq.Bot.Models;
 
 namespace Traq.Bot.WebSocket
@@ -15,9 +14,9 @@ namespace Traq.Bot.WebSocket
     /// <param name="traqOptions"></param>
     /// <param name="logger"></param>
     /// <param name="baseLogger"></param>
-    public abstract class TraqWsBot(
+    public abstract class TraqWebSocketBot(
         IOptions<TraqApiClientOptions> traqOptions,
-        ILogger<TraqWsBot>? logger,
+        ILogger<TraqWebSocketBot>? logger,
         ILogger<TraqBot> baseLogger
         ) : TraqBot(baseLogger)
     {
