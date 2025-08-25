@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks.Sources;
 
-namespace Traq.Bot.Http.Helper
+namespace Traq.Bot.Http.Helpers
 {
     class ReusableValueTaskSource<T> : IResettable, IValueTaskSource<T>
     {

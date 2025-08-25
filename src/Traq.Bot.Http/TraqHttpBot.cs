@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
-using Traq.Bot.Http.Helper;
+using Traq.Bot.Http.Helpers;
 using Traq.Bot.Models;
 
 namespace Traq.Bot.Http

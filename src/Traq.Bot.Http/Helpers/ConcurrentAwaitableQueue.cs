@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Diagnostics;
 using System.Collections.Concurrent;
 
-namespace Traq.Bot.Http.Helper
+namespace Traq.Bot.Http.Helpers
 {
     class ConcurrentAwaitableQueue<T>
     {
