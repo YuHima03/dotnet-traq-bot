@@ -20,6 +20,21 @@ namespace Traq.Bot.Http
         )
         : TraqBot(baseLogger)
     {
+        /// <summary>
+        /// Header name for event name.
+        /// </summary>
+        public const string HeaderEventName = "X-TRAQ-BOT-EVENT";
+
+        /// <summary>
+        /// Header name for request ID.
+        /// </summary>
+        public const string HeaderRequestId = "X-TRAQ-BOT-REQUEST-ID";
+
+        /// <summary>
+        /// Header name for verification token.
+        /// </summary>
+        public const string HeaderVerificationToken = "X-TRAQ-BOT-TOKEN";
+
         readonly ConcurrentAwaitableQueue<EventData> _eventDataQueue = new();
 
         /// <summary>
