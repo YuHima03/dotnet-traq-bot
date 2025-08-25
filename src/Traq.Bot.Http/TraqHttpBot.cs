@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using Traq.Bot.Http.Helpers;
@@ -31,12 +30,7 @@ namespace Traq.Bot.Http
         /// <param name="verificationTokenChallenge"></param>
         /// <param name="body"></param>
         /// <returns></returns>
-        public Results<NoContent, BadRequest> HandleEvent(
-            [FromHeader(Name = "X-TRAQ-BOT-EVENT")] string eventName,
-            [FromHeader(Name = "X-TRAQ-BOT-REQUEST-ID")] string? requestId,
-            [FromHeader(Name = "X-TRAQ-BOT-TOKEN")] string? verificationTokenChallenge,
-            [FromBody] JsonElement body
-            )
+        public Results<NoContent, BadRequest> HandleEvent(string eventName, string? requestId, string? verificationTokenChallenge, JsonElement body)
         {
             if (!string.Equals(verificationToken, verificationTokenChallenge, StringComparison.Ordinal))
             {
