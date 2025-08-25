@@ -16,7 +16,7 @@ namespace Traq.Bot.WebSocket
     /// <param name="baseLogger"></param>
     public abstract class TraqWebSocketBot(
         IOptions<TraqApiClientOptions> traqOptions,
-        ILogger<TraqWebSocketBot>? logger,
+        ILogger<TraqWebSocketBot> logger,
         ILogger<TraqBot> baseLogger
         ) : TraqBot(baseLogger)
     {
@@ -67,25 +67,25 @@ namespace Traq.Bot.WebSocket
             }
             catch (Exception e)
             {
-                logger?.LogError(e, "Failed to receive a WebSocket message.");
+                logger.LogError(e, "Failed to receive a WebSocket message.");
                 Interlocked.Exchange(ref _ws, null)?.Dispose();
                 return false;
             }
 
             if (receiveResult.MessageType is WebSocketMessageType.Close)
             {
-                logger?.LogWarning("WebSocket connection was closed: {}", receiveResult.CloseStatusDescription);
+                logger.LogWarning("WebSocket connection was closed: {}", receiveResult.CloseStatusDescription);
                 Interlocked.Exchange(ref _ws, null)?.CloseOutputAsync(receiveResult.CloseStatus ?? WebSocketCloseStatus.Empty, receiveResult.CloseStatusDescription, ct);
                 return false;
             }
             else if (receiveResult.MessageType is WebSocketMessageType.Binary)
             {
-                logger?.LogWarning("Binary message is not supported. The received message is ignored.");
+                logger.LogWarning("Binary message is not supported. The received message is ignored.");
                 return false;
             }
             else if (!receiveResult.EndOfMessage)
             {
-                logger?.LogWarning("Received too long message: {} bytes. The received message is ignored.", receiveResult.Count);
+                logger.LogWarning("Received too long message: {} bytes. The received message is ignored.", receiveResult.Count);
                 return false;
             }
             else if (receiveResult.Count == 0)
@@ -136,12 +136,12 @@ namespace Traq.Bot.WebSocket
                 try
                 {
                     await ws.ConnectAsync(uri, ct);
-                    logger?.LogInformation("Connected to a WebSocket server: {Uri}", uri);
+                    logger.LogInformation("Connected to a WebSocket server: {Uri}", uri);
                     return ws;
                 }
                 catch (Exception e)
                 {
-                    logger?.LogError(e, "Failed to connect to a WebSocket server. Retry after a minute.");
+                    logger.LogError(e, "Failed to connect to a WebSocket server. Retry after a minute.");
                     await Task.Delay(TimeSpan.FromMinutes(1), ct);
                 }
             }
