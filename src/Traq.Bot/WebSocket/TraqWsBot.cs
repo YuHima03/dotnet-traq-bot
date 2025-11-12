@@ -1,9 +1,9 @@
-﻿using CommunityToolkit.Diagnostics;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using System.Net;
+﻿using System.Net;
 using System.Net.WebSockets;
 using System.Text.Json;
+using CommunityToolkit.Diagnostics;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Traq.Bot.Helpers;
 using WebSocketEventData = (string? RequestId, string EventName, System.Text.Json.JsonElement Body);
 
@@ -79,18 +79,27 @@ namespace Traq.Bot.WebSocket
 
             if (receiveResult.MessageType is WebSocketMessageType.Close)
             {
-                logger?.LogWarning("WebSocket connection was closed: {}", receiveResult.CloseStatusDescription);
+                if (logger?.IsEnabled(LogLevel.Warning) is true)
+                {
+                    logger.LogWarning("WebSocket connection was closed: {}", receiveResult.CloseStatusDescription);
+                }
                 Interlocked.Exchange(ref _ws, null)?.CloseOutputAsync(receiveResult.CloseStatus ?? WebSocketCloseStatus.Empty, receiveResult.CloseStatusDescription, ct);
                 return false;
             }
             else if (receiveResult.MessageType is WebSocketMessageType.Binary)
             {
-                logger?.LogWarning("Binary message is not supported. The received message is ignored.");
+                if (logger?.IsEnabled(LogLevel.Warning) is true)
+                {
+                    logger.LogWarning("Binary message is not supported. The received message is ignored.");
+                }
                 return false;
             }
             else if (!receiveResult.EndOfMessage)
             {
-                logger?.LogWarning("Received too long message: {} bytes. The received message is ignored.", receiveResult.Count);
+                if (logger?.IsEnabled(LogLevel.Warning) is true)
+                {
+                    logger.LogWarning("Received too long message: {} bytes. The received message is ignored.", receiveResult.Count);
+                }
                 return false;
             }
             else if (receiveResult.Count == 0)
@@ -141,12 +150,18 @@ namespace Traq.Bot.WebSocket
                 try
                 {
                     await ws.ConnectAsync(uri, ct);
-                    logger?.LogInformation("Connected to a WebSocket server: {Uri}", uri);
+                    if (logger?.IsEnabled(LogLevel.Information) is true)
+                    {
+                        logger.LogInformation("Connected to a WebSocket server: {Uri}", uri);
+                    }
                     return ws;
                 }
                 catch (Exception e)
                 {
-                    logger?.LogError(e, "Failed to connect to a WebSocket server. Retry after a minute.");
+                    if (logger?.IsEnabled(LogLevel.Error) is true)
+                    {
+                        logger.LogError(e, "Failed to connect to a WebSocket server. Retry after a minute.");
+                    }
                     await Task.Delay(TimeSpan.FromMinutes(1), ct);
                 }
             }

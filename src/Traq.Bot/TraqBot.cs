@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using System.Text.Json;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
 using Traq.Bot.Helpers;
 using Traq.Bot.Models;
 
@@ -33,7 +33,7 @@ namespace Traq.Bot
             }
         }
 
-        ValueTask HandleEventAsync(string? requestId, string eventName, JsonElement body, CancellationToken ct)
+        ValueTask HandleEventAsync(string? _, string eventName, JsonElement body, CancellationToken ct)
         {
             switch (eventName)
             {
@@ -109,7 +109,10 @@ namespace Traq.Bot
                 #endregion
 
                 default:
-                    logger?.LogWarning("Unknown event name: {}", eventName);
+                    if (logger?.IsEnabled(LogLevel.Warning) is true)
+                    {
+                        logger.LogWarning("Unknown event name: {}", eventName);
+                    }
                     return ValueTask.CompletedTask;
             }
         }
